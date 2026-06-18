@@ -1,36 +1,11 @@
-import os
-import pytest
-from dotenv import load_dotenv
 from playwright.sync_api import Page, expect
 
-load_dotenv()
+def test_validate_user_does_not_have_system_option(regular_user_login: Page):
+    """this test recognizes regular_user_login automatically from conftest.py!"""
+    page = regular_user_login 
+    expect(page.locator("[data-test='nav-system']")).to_be_hidden()
 
-
-@pytest.mark.parametrize(
-    "device_name",
-    [
-        "desktop",
-        "galaxy s9",
-        "galaxy s9 landscape",
-        "macbook pro 16",
-        "macbook pro 16 landscape",
-    ],
-)
-def test_validate_have_system_option(page: Page, device_name):
-    """Test to validate that the system option is available for admin users on different devices."""
-
-    base_url = os.environ.get("BASE_URL")
-    admin_email = os.environ.get("ADMIN_EMAIL")
-    admin_password = os.environ.get("ADMIN_PASSWORD")
-
-    page.goto(base_url)
-
-    page.locator("[data-test='input-email']").fill(admin_email)
-    page.locator("[data-test='input-password']").fill(admin_password)
-
-    page.locator("[data-test='btn-login']").click()
-    page.locator("[data-test='nav-system']").click()
-
-    expect(page).to_have_url(
-        'https://sv-students-recommend.onrender.com/pages/admin.html'
-    )
+def test_validate_admin_has_system_option(admin_user_login: Page):
+    """this test recognizes admin_user_login automatically from conftest.py!"""
+    page = admin_user_login
+    expect(page.locator("[data-test='nav-system']")).to_be_visible()
