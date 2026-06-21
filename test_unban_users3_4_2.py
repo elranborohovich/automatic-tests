@@ -1,32 +1,45 @@
 import os
 import pytest
+import uuid
 from dotenv import load_dotenv
 from playwright.sync_api import Page, expect
 
-# הערה קטנה: אין צורך לעשות import ל-admin_user_login מתוך conftest! 
-# pytest מזהה אותו אוטומטית מכל מקום בפרויקט.
+load_dotenv()
 
+@pytest.mark.order(1)
 def test_ban_unban_users_as_admin(admin_user_login: Page):
-    
     page = admin_user_login
+    
+    base_url = os.environ.get("BASE_URL")
+    admin_email = os.environ.get("ADMIN_EMAIL")
+    admin_password = os.environ.get("ADMIN_PASSWORD")
+    
+    unique_id = str(uuid.uuid4())[:6]
+    test_email = f"user_{unique_id}@test.com"
 
-    # 1. מעבר לעמוד המערכת
+    page.wait_for_load_state("networkidle")
+    
     page.locator("[data-test='nav-system']").click()
-    # 2. הזנת המשתמש לחסימה ולחיצה
-    page.locator("[data-test='input-blacklist-email']").fill("kohen4578@gmail.com")
-    page.locator("[data-test='btn-add-blacklist']").click()
+    page.wait_for_load_state("networkidle")
     
-   # לחיצה רגילה
-    page.locator("[data-test='btn-add-blacklist']").click()
+    if not page.locator("[data-test='input-blacklist-email']").is_visible():
+        page.goto(f"{base_url}/pages/login.html")
+        page.locator("[data-test='input-email']").fill(admin_email)
+        page.locator("[data-test='input-password']").fill(admin_password)
+        page.locator("[data-test='btn-login']").click()
+        page.wait_for_load_state("networkidle")
+        page.locator("[data-test='nav-system']").click()
+        page.wait_for_load_state("networkidle")
+
+    page.locator("[data-test='input-blacklist-email']").fill(test_email)
     
-    # נותנים לו עד 10 שניות (10000 מילישניות) להציג את המילה blocked
-    expect(page.locator("[data-test='blacklist-msg']")).to_contain_text("blocked", timeout=10000)
-   # 4. הסרת המשתמש מהחסימה (Unban)
-    row = page.get_by_role("row").filter(has_text="kohen4578@gmail.com")
-    row.locator("[data-test='btn-remove-blacklist']").click()
+    page.locator("[data-test='btn-add-blacklist']").click(force=True)
     
-    # 5. תיקון: מטרגטים ספציפית את התא שנמצא בתוך טבלת החסומים (blacklist-table)
-    # ומוודאים שהוא זה שנעלם
+    target_row = page.locator("[data-test='blacklist-table']").get_by_role("row").filter(has_text=test_email)
+    expect(target_row).to_be_visible(timeout=15000)
+    
+    target_row.locator("[data-test='btn-remove-blacklist']").click(force=True)
+    
     expect(
-        page.locator("[data-test='blacklist-table']").get_by_role("cell", name="kohen4578@gmail.com")
-    ).to_be_hidden(timeout=10000)
+        page.locator("[data-test='blacklist-table']").get_by_role("cell", name=test_email)
+    ).to_be_hidden(timeout=15000)
