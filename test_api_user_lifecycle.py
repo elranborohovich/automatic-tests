@@ -63,8 +63,7 @@ def test_delete_dynamic_user(playwright: Playwright, create_and_login_dynamic_us
 
 @pytest.mark.api_user_lifecycle_negative
 def test_cannot_login_after_deletion(playwright: Playwright, create_and_login_dynamic_user: str):
-    """Verifies that after deletion, the user can no longer log in. Expects 401."""
-    # 🎯 שים לב: הוספנו את create_and_login_dynamic_user לסוגריים למעלה!
+    """Verifies 3.4.1 Profile Delete that after deletion, the user can no longer log in. Expects 401."""
     assert "email" in _dynamic_user_data, "No user data found from previous steps"
     
     api = playwright.request.new_context(base_url=BASE)
@@ -73,7 +72,8 @@ def test_cannot_login_after_deletion(playwright: Playwright, create_and_login_dy
         "email": _dynamic_user_data["email"],
         "password": _dynamic_user_data["password"],
     })
-    
+    #יש באג שהשרת מחזיר קוד 200 במקום 401 הטסט אמור להיכשל
     assert res.status == 401, f"Expected 401 Unauthorized for deleted user, but got: {res.status}"
-    
+ 
+
     api.dispose()
