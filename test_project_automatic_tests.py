@@ -55,4 +55,48 @@ def test_recommendations_category(regular_user_login: Page):
     page.wait_for_load_state("networkidle")
     expect(page).to_have_url(re.compile(r".*filter=all.*"))
 
+@pytest.mark.ui
+def test_recommendations_comment(regular_user_login: Page):
+def run(playwright: Playwright) -> None:
+    browser = playwright.chromium.launch(headless=False)
+    context = browser.new_context()
+    page = context.new_page()
+    page.goto("BASE_URL")
+    page.locator("[data-test=\"input-email\"]").fill("private.user@gmail.com")
+    page.locator("[data-test=\"input-password\"]").fill("USER1234")
+    page.locator("[data-test=\"btn-login\"]").click()
+    page.locator("div").filter(has_text="No Image").nth(3).click()
+    page.get_by_text("★").first.click()
+    page.locator("[data-test=\"textarea-comment\"]").fill("good movie")
+    page.locator("[data-test=\"btn-submit-comment\"]").click()
+    page.locator("[data-test=\"comment-item\"]").to_be_visible()
 
+    # ---------------------
+    context.close()
+    browser.close()
+
+
+with sync_playwright() as playwright:
+    run(playwright)
+    
+    
+    
+def run(playwright: Playwright) -> None:
+    browser = playwright.chromium.launch(headless=False)
+    context = browser.new_context()
+    page = context.new_page()
+    page.goto("BASE_URL")
+    page.locator("[data-test=\"input-email\"]").fill("ADMIN_EMAIL")
+    page.locator("[data-test=\"input-password\"]").fill("ADMIN_PASSWORD")
+    page.locator("[data-test=\"btn-login\"]").click()
+    page.get_by_role("img").nth(1).click()
+    page.locator("[data-test=\"btn-delete.btn\]").to_be_visible("delete")
+    
+
+    # ---------------------
+    context.close()
+    browser.close()
+
+
+with sync_playwright() as playwright:
+    run(playwright)
