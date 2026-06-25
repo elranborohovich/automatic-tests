@@ -9,6 +9,7 @@ load_dotenv()
 @pytest.mark.order(3)
 def test_user_can_change_and_restore_password(regular_user_login: Page):
     time.sleep(3)
+    """3.1.1 Change Password - Verifies that a user can change their password and then restore it back to the original password."""
     
     page = regular_user_login
     base_url = os.environ.get("BASE_URL")
