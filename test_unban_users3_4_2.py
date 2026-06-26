@@ -8,6 +8,7 @@ load_dotenv()
 
 @pytest.mark.order(1)
 def test_ban_unban_users_as_admin(admin_user_login: Page):
+    """3.4.2 Ban and Unban Users - Verifies that an admin user can ban and unban users via the /api/system/blacklist endpoint."""
     page = admin_user_login
     
     base_url = os.environ.get("BASE_URL")
