@@ -25,8 +25,8 @@ def admin_user_login(browser: Browser):
     
     page.locator("[data-test='btn-login']").click(force=True)
     
-    expect(page.get_by_role("heading", name="Welcome")).to_be_visible(timeout=25000)
-    page.wait_for_load_state("networkidle")
+    page.wait_for_url("**/pages/home.html", timeout=30000)
+    expect(page.locator("[data-test='nav-logout']")).to_be_visible(timeout=25000)
     
     yield page
     
@@ -52,8 +52,8 @@ def regular_user_login(browser: Browser):
     
     page.locator("[data-test='btn-login']").click(force=True)
     
-    expect(page.get_by_role("heading", name="Welcome")).to_be_visible(timeout=25000)
-    page.wait_for_load_state("networkidle")
+    page.wait_for_url("**/pages/home.html", timeout=30000)
+    expect(page.locator("[data-test='nav-logout']")).to_be_visible(timeout=25000)
     
     yield page
     
